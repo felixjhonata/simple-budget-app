@@ -1,7 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+
+    // ksp
     id("com.google.devtools.ksp")
+
+    // hilt
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -55,6 +60,15 @@ dependencies {
     // optional - Paging 3 Integration
     implementation(libs.androidx.room.paging)
 
+    // ======
+
+    // ======
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+
+    // optional - Compose Navigation Integration
+    implementation(libs.androidx.hilt.navigation.compose)
     // ======
 
     implementation(libs.androidx.core.ktx)
