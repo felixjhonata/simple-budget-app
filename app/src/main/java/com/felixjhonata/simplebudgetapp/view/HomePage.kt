@@ -31,15 +31,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.felixjhonata.simplebudgetapp.R
 import com.felixjhonata.simplebudgetapp.model.TransactionItemUiModel
-import com.felixjhonata.simplebudgetapp.model.TransactionType
 import com.felixjhonata.simplebudgetapp.ui.theme.SimpleBudgetAppTheme
 import com.felixjhonata.simplebudgetapp.util.toLocalizedString
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import com.felixjhonata.simplebudgetapp.viewmodel.HomePageViewModel
 
 @Composable
 fun AppLogoAndName(modifier: Modifier = Modifier) {
@@ -96,64 +93,11 @@ fun TotalBalanceCard(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun HomePage(modifier: Modifier = Modifier) {
-    val transactionItems = listOf(
-        TransactionItemUiModel.Date(
-            1773964800
-        ),
-        TransactionItemUiModel.TransactionItem(
-            type = TransactionType.INCOME,
-            currency = "IDR",
-            amount = 200_000.0
-        ),
-        TransactionItemUiModel.TransactionItem(
-            type = TransactionType.EXPENSE,
-            currency = "IDR",
-            amount = 32_000.0
-        ),
-
-        TransactionItemUiModel.Date(
-            1773878400
-        ),
-        TransactionItemUiModel.TransactionItem(
-            type = TransactionType.INCOME,
-            currency = "IDR",
-            amount = 200_000.0
-        ),
-        TransactionItemUiModel.TransactionItem(
-            type = TransactionType.EXPENSE,
-            currency = "IDR",
-            amount = 32_000.0
-        ),
-
-        TransactionItemUiModel.Date(
-            1773792000
-        ),
-        TransactionItemUiModel.TransactionItem(
-            type = TransactionType.INCOME,
-            currency = "IDR",
-            amount = 200_000.0
-        ),
-        TransactionItemUiModel.TransactionItem(
-            type = TransactionType.EXPENSE,
-            currency = "IDR",
-            amount = 32_000.0
-        ),
-
-        TransactionItemUiModel.Date(
-            1773705600
-        ),
-        TransactionItemUiModel.TransactionItem(
-            type = TransactionType.INCOME,
-            currency = "IDR",
-            amount = 200_000.0
-        ),
-        TransactionItemUiModel.TransactionItem(
-            type = TransactionType.EXPENSE,
-            currency = "IDR",
-            amount = 32_000.0
-        )
-    )
+fun HomePage(
+    modifier: Modifier = Modifier,
+    viewModel: HomePageViewModel = hiltViewModel()
+) {
+    val transactionItems = viewModel.getTransactionItems()
 
     Scaffold(
         modifier = modifier,
@@ -198,10 +142,6 @@ fun HomePage(modifier: Modifier = Modifier) {
             items(transactionItems) { item ->
                 when(item) {
                     is TransactionItemUiModel.Date -> {
-                        val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.getDefault())
-                        val date = Instant.ofEpochSecond(item.epochTime)
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate()
                         Box(
                             Modifier
                                 .padding(top = 18.dp)
@@ -209,7 +149,7 @@ fun HomePage(modifier: Modifier = Modifier) {
                                 .fillMaxWidth()
                         ) {
                             Text(
-                                date.format(formatter),
+                                viewModel.formatDate(item.epochTime),
                                 modifier = Modifier.padding(
                                     vertical = 4.dp,
                                     horizontal = 24.dp
