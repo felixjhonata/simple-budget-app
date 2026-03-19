@@ -5,8 +5,11 @@ plugins {
     // ksp
     id("com.google.devtools.ksp")
 
-    // hilt
+    // Hilt
     id("com.google.dagger.hilt.android")
+
+    // Serialization
+    alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
 android {
@@ -77,6 +80,15 @@ dependencies {
 
     // optional - Jetpack Compose integration
     implementation(libs.androidx.paging.compose)
+
+    // ======
+
+    // ======
+    // Nav3
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.kotlinx.serialization.core)
 
     // ======
 

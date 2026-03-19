@@ -30,8 +30,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.felixjhonata.simplebudgetapp.R
+import com.felixjhonata.simplebudgetapp.model.AddTransaction
 import com.felixjhonata.simplebudgetapp.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.util.toLocalizedString
 import com.felixjhonata.simplebudgetapp.viewmodel.HomePageViewModel
@@ -92,6 +95,7 @@ fun TotalBalanceCard(modifier: Modifier = Modifier) {
 
 @Composable
 fun HomePage(
+    navBackStack: NavBackStack<NavKey>,
     modifier: Modifier = Modifier,
     viewModel: HomePageViewModel = hiltViewModel()
 ) {
@@ -101,7 +105,9 @@ fun HomePage(
         modifier = modifier,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {}
+                onClick = {
+                    navBackStack.add(AddTransaction)
+                }
             ) {
                 Icon(
                     Icons.Default.Add,
