@@ -24,7 +24,7 @@ class HomePageViewModel @Inject constructor(
 ): ViewModel() {
     val transactionItems by lazy {
         Pager(
-            config = PagingConfig(20),
+            config = PagingConfig(50),
         ) {
             homePageRepository.getTransactions()
         }.flow.map { pagingData ->
