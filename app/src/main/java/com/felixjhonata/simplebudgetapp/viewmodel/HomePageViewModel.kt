@@ -2,16 +2,16 @@ package com.felixjhonata.simplebudgetapp.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.felixjhonata.simplebudgetapp.data.room.entity.Transaction
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
+import androidx.paging.map
 import com.felixjhonata.simplebudgetapp.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.model.TransactionType
 import com.felixjhonata.simplebudgetapp.repository.HomePageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -22,15 +22,53 @@ import javax.inject.Inject
 class HomePageViewModel @Inject constructor(
     private val homePageRepository: HomePageRepository
 ): ViewModel() {
-    private val _transactionItems = MutableStateFlow<List<TransactionItemUiModel>>(emptyList())
-    val transactionItems = _transactionItems.asStateFlow()
+    val transactionItems by lazy {
+        Pager(
+            config = PagingConfig(20),
+        ) {
+            homePageRepository.getTransactions()
+        }.flow.map { pagingData ->
+            pagingData.map {
+                TransactionItemUiModel.TransactionItem(
+                    type = TransactionType.valueOf(it.type),
+                    currency = it.currency,
+                    amount = it.amount,
+                    epochTime = it.date
+                )
+            }.insertSeparators { before, after ->
+                when {
+                    (before == null && after != null)
+                            || (before != null && after != null && shouldSeperate(before, after)) -> {
+                        TransactionItemUiModel.Date(after.epochTime)
+                    }
 
-    init {
-        getTransactionItems()
+                    else -> null
+                }
+            }
+        }.cachedIn(viewModelScope)
     }
 
     private val formatter by lazy {
         DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.getDefault())
+    }
+
+    fun shouldSeperate(before: TransactionItemUiModel, after: TransactionItemUiModel): Boolean {
+        val beforeTypeCasted = before as? TransactionItemUiModel.TransactionItem
+        val afterTypeCasted = after as? TransactionItemUiModel.TransactionItem
+
+        if (beforeTypeCasted == null || afterTypeCasted == null) return false
+
+        val beforeDate = Instant.ofEpochSecond(beforeTypeCasted.epochTime)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+
+        val afterDate = Instant.ofEpochSecond(afterTypeCasted.epochTime)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+
+        return beforeDate.year != afterDate.year
+                || beforeDate.monthValue != afterDate.monthValue
+                || beforeDate.dayOfMonth != afterDate.dayOfMonth
     }
 
     fun formatDate(epochSecond: Long): String {
@@ -39,25 +77,5 @@ class HomePageViewModel @Inject constructor(
             .toLocalDate()
 
         return instant.format(formatter)
-    }
-
-    private fun mapTransactionsToUiModel(transactions: List<Transaction>): List<TransactionItemUiModel> {
-        return transactions.map {
-            TransactionItemUiModel.TransactionItem(
-                type = TransactionType.valueOf(it.type),
-                currency = it.currency,
-                amount = it.amount
-            )
-        }
-    }
-
-    private fun getTransactionItems() {
-        viewModelScope.launch(Dispatchers.IO) {
-            homePageRepository.getTransactions().collect { transactions ->
-                _transactionItems.update {
-                    mapTransactionsToUiModel(transactions)
-                }
-            }
-        }
     }
 }

@@ -8,6 +8,7 @@ sealed interface TransactionItemUiModel {
     data class TransactionItem(
         val type: TransactionType,
         val currency: String,
-        val amount: Double
+        val amount: Double,
+        val epochTime: Long
     ): TransactionItemUiModel
 }
