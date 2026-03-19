@@ -20,6 +20,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,7 +39,7 @@ import com.felixjhonata.simplebudgetapp.R
 import com.felixjhonata.simplebudgetapp.model.AddTransaction
 import com.felixjhonata.simplebudgetapp.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.util.toLocalizedString
-import com.felixjhonata.simplebudgetapp.viewmodel.HomePageViewModel
+import com.felixjhonata.simplebudgetapp.viewmodel.HomeViewModel
 
 @Composable
 fun AppLogoAndName(modifier: Modifier = Modifier) {
@@ -63,7 +65,10 @@ fun AppLogoAndName(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TotalBalanceCard(modifier: Modifier = Modifier) {
+fun TotalBalanceCard(
+    totalBalance: String,
+    modifier: Modifier = Modifier
+) {
     Card(modifier) {
         Column(
             modifier = Modifier
@@ -84,7 +89,7 @@ fun TotalBalanceCard(modifier: Modifier = Modifier) {
             )
 
             Text(
-                "IDR 12,000,000",
+                "IDR $totalBalance",
                 style = TextStyle(
                     fontSize = 24.sp
                 )
@@ -97,8 +102,9 @@ fun TotalBalanceCard(modifier: Modifier = Modifier) {
 fun HomePage(
     navBackStack: NavBackStack<NavKey>,
     modifier: Modifier = Modifier,
-    viewModel: HomePageViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val totalBalance by viewModel.totalBalance.collectAsState()
     val transactionItems = viewModel.transactionItems.collectAsLazyPagingItems()
 
     Scaffold(
@@ -128,6 +134,7 @@ fun HomePage(
 
             item {
                 TotalBalanceCard(
+                    totalBalance,
                     Modifier.padding(horizontal = 24.dp, vertical = 18.dp)
                 )
             }

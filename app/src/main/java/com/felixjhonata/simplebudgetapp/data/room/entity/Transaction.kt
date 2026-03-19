@@ -16,8 +16,12 @@ import androidx.room.PrimaryKey
 data class Transaction(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+
     val type: String,
+
     val amount: Double,
+
     val currency: String,
+
     val date: Long
 )

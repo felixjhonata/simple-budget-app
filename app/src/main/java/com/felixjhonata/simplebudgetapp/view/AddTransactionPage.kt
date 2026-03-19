@@ -1,7 +1,6 @@
 package com.felixjhonata.simplebudgetapp.view
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,38 +14,34 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.rememberNavBackStack
 import com.felixjhonata.simplebudgetapp.R
-import com.felixjhonata.simplebudgetapp.ui.theme.SimpleBudgetAppTheme
-import com.felixjhonata.simplebudgetapp.util.toLocalizedString
+import com.felixjhonata.simplebudgetapp.model.TransactionType
+import com.felixjhonata.simplebudgetapp.viewmodel.AddTransactionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddTransactionAppBar(modifier: Modifier = Modifier, onBack: () -> Unit) {
+private fun AddTransactionAppBar(modifier: Modifier = Modifier, onDone: () -> Unit, onBack: () -> Unit) {
     TopAppBar(
         modifier = modifier,
         title = {
@@ -61,13 +56,23 @@ private fun AddTransactionAppBar(modifier: Modifier = Modifier, onBack: () -> Un
                     "back_navigation_icon"
                 )
             }
+        },
+        actions = {
+            IconButton(
+                onClick = onDone
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    "done_button"
+                )
+            }
         }
     )
 }
 
 @Composable
 private fun InputField(
-    currentInput: Int,
+    numDisplay: String,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -85,7 +90,7 @@ private fun InputField(
         Spacer(Modifier.width(4.dp))
 
         Text(
-            currentInput.toLocalizedString(),
+            numDisplay,
             style = TextStyle(
                 fontSize = 48.sp,
                 textAlign = TextAlign.End
@@ -99,12 +104,12 @@ private fun InputField(
 private fun KeyboardButton(
     text: String,
     modifier: Modifier = Modifier,
-    setText: (Int) -> Unit
+    setCurrentInput: (String) -> Unit
 ) {
     IconButton(
         modifier = modifier,
         onClick = {
-            setText(text.toInt())
+            setCurrentInput(text)
         }
     ) {
         Text(
@@ -118,9 +123,11 @@ private fun KeyboardButton(
 
 @Composable
 private fun Keyboard(
-    currentInput: Int,
-    modifier: Modifier = Modifier,
-    setCurrentInput: (Int) -> Unit,
+    currentMode: TransactionType,
+    setCurrentInput: (String) -> Unit,
+    onBackSpace: () -> Unit,
+    onToggleMode: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
         modifier = modifier,
@@ -129,10 +136,9 @@ private fun Keyboard(
         items(9) { index ->
             KeyboardButton(
                 (index + 1).toString(),
-                modifier = Modifier.aspectRatio(1f)
-            ) { input ->
-                setCurrentInput(currentInput * 10 + input)
-            }
+                modifier = Modifier.aspectRatio(1f),
+                setCurrentInput = setCurrentInput
+            )
         }
 
         items(3) { index ->
@@ -140,37 +146,27 @@ private fun Keyboard(
                 0 -> {
                     IconButton(
                         modifier = Modifier.aspectRatio(1f),
-                        onClick = {
-                            setCurrentInput(currentInput / 10)
-                        }
+                        onClick = onToggleMode
                     ) {
-                        Icon(
-                            painterResource(R.drawable.ic_backspace),
-                            "backspace_button"
-                        )
+                        Text(currentMode.toString())
                     }
                 }
                 1 -> {
                     KeyboardButton(
                         "0",
-                        modifier = Modifier.aspectRatio(1f)
-                    ) { input ->
-                        setCurrentInput(currentInput * 10 + input)
-                    }
+                        modifier = Modifier.aspectRatio(1f),
+                        setCurrentInput = setCurrentInput
+                    )
                 }
                 2 -> {
-                    Box(
-                        Modifier.aspectRatio(1f),
-                        contentAlignment = Alignment.Center
+                    IconButton(
+                        modifier = Modifier.aspectRatio(1f),
+                        onClick = onBackSpace
                     ) {
-                        FilledIconButton(
-                            onClick = {}
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowForward,
-                                "done_button"
-                            )
-                        }
+                        Icon(
+                            painterResource(R.drawable.ic_backspace),
+                            "backspace_button"
+                        )
                     }
                 }
             }
@@ -181,14 +177,21 @@ private fun Keyboard(
 @Composable
 fun AddTransactionPage(
     navBackStack: NavBackStack<NavKey>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: AddTransactionViewModel = hiltViewModel()
 ) {
-    var currentInput by remember { mutableIntStateOf(0) }
+    val numDisplay by viewModel.numDisplay.collectAsState()
+    val currentMode by viewModel.currentMode.collectAsState()
 
     Scaffold(
         modifier = modifier,
         topBar = {
-            AddTransactionAppBar {
+            AddTransactionAppBar(
+                onDone = {
+                    viewModel.addTransaction()
+                    navBackStack.removeLastOrNull()
+                }
+            ) {
                 navBackStack.removeLastOrNull()
             }
         }
@@ -200,7 +203,7 @@ fun AddTransactionPage(
             verticalArrangement = Arrangement.Center
         ) {
             InputField(
-                currentInput = currentInput,
+                numDisplay = numDisplay,
                 modifier = Modifier
                     .padding(
                         horizontal = 24.dp
@@ -214,19 +217,11 @@ fun AddTransactionPage(
                 modifier = Modifier.padding(
                     horizontal = 24.dp
                 ),
-                currentInput = currentInput
-            ) { input ->
-                currentInput = input
-            }
+                currentMode = currentMode,
+                setCurrentInput = viewModel::setCurrentInput,
+                onBackSpace = viewModel::onBackSpace,
+                onToggleMode = viewModel::toggleMode
+            )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewAddTransactionPage() {
-    SimpleBudgetAppTheme {
-        val navBackStack = rememberNavBackStack()
-        AddTransactionPage(navBackStack)
     }
 }

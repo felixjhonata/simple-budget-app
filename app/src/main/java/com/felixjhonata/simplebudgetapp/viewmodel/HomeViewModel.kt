@@ -9,8 +9,10 @@ import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.felixjhonata.simplebudgetapp.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.model.TransactionType
-import com.felixjhonata.simplebudgetapp.repository.HomePageRepository
+import com.felixjhonata.simplebudgetapp.repository.HomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.ZoneId
@@ -19,14 +21,17 @@ import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class HomePageViewModel @Inject constructor(
-    private val homePageRepository: HomePageRepository
+class HomeViewModel @Inject constructor(
+    private val homeRepository: HomeRepository
 ): ViewModel() {
+    private val _totalBalance = MutableStateFlow("0")
+    val totalBalance = _totalBalance.asStateFlow()
+
     val transactionItems by lazy {
         Pager(
             config = PagingConfig(50),
         ) {
-            homePageRepository.getTransactions()
+            homeRepository.getTransactions()
         }.flow.map { pagingData ->
             pagingData.map {
                 TransactionItemUiModel.TransactionItem(

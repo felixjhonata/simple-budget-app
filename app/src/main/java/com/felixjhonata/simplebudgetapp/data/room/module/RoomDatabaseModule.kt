@@ -30,4 +30,10 @@ object RoomDatabaseModule {
     fun provideTransactionDao(
         database: SimpleBudgetAppDatabase
     ) = database.transactionDao()
+
+    @Provides
+    @Singleton
+    fun provideTotalBalanceDao(
+        database: SimpleBudgetAppDatabase
+    ) = database.totalBalanceDao()
 }
