@@ -1,7 +1,11 @@
 package com.felixjhonata.simplebudgetapp.data.room.module
 
+import android.content.ContentValues
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.felixjhonata.simplebudgetapp.data.room.database.SimpleBudgetAppDatabase
 import dagger.Module
 import dagger.Provides
@@ -21,6 +25,18 @@ object RoomDatabaseModule {
         context,
         SimpleBudgetAppDatabase::class.java,
         "simple_budget_app_database"
+    ).addCallback(
+        object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+
+                val values = ContentValues().apply {
+                    put("id", 1)
+                    put("totalBalance", "0")
+                }
+                db.insert("total_balance", SQLiteDatabase.CONFLICT_IGNORE, values)
+            }
+        }
     ).fallbackToDestructiveMigrationOnDowngrade(
         true
     ).build()

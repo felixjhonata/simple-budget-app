@@ -76,7 +76,6 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                // TODO: Use initial database populating instead
                 Log.e("ERROR", e.localizedMessage ?: "")
                 homeRepository.insertTotalBalance(TotalBalance(1, 0.0))
                 if (shouldRetry) getTotalBalance(false)
