@@ -1,5 +1,6 @@
 package com.felixjhonata.simplebudgetapp.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -7,13 +8,18 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
+import com.felixjhonata.simplebudgetapp.data.room.entity.TotalBalance
 import com.felixjhonata.simplebudgetapp.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.model.TransactionType
 import com.felixjhonata.simplebudgetapp.repository.HomeRepository
+import com.felixjhonata.simplebudgetapp.util.toLocalizedString
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -43,7 +49,7 @@ class HomeViewModel @Inject constructor(
             }.insertSeparators { before, after ->
                 when {
                     (before == null && after != null)
-                            || (before != null && after != null && shouldSeperate(before, after)) -> {
+                            || (before != null && after != null && shouldSeparate(before, after)) -> {
                         TransactionItemUiModel.Date(after.epochTime)
                     }
 
@@ -57,7 +63,28 @@ class HomeViewModel @Inject constructor(
         DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.getDefault())
     }
 
-    fun shouldSeperate(before: TransactionItemUiModel, after: TransactionItemUiModel): Boolean {
+    init {
+        getTotalBalance()
+    }
+
+    fun getTotalBalance(shouldRetry: Boolean = true) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                homeRepository.getTotalBalance().collect { item ->
+                    _totalBalance.update {
+                        item.totalBalance.toLocalizedString()
+                    }
+                }
+            } catch (e: Exception) {
+                // TODO: Use initial database populating instead
+                Log.e("ERROR", e.localizedMessage ?: "")
+                homeRepository.insertTotalBalance(TotalBalance(1, 0.0))
+                if (shouldRetry) getTotalBalance(false)
+            }
+        }
+    }
+
+    fun shouldSeparate(before: TransactionItemUiModel, after: TransactionItemUiModel): Boolean {
         val beforeTypeCasted = before as? TransactionItemUiModel.TransactionItem
         val afterTypeCasted = after as? TransactionItemUiModel.TransactionItem
 

@@ -1,14 +1,35 @@
 package com.felixjhonata.simplebudgetapp.repository
 
+import androidx.room.withTransaction
+import com.felixjhonata.simplebudgetapp.data.room.dao.TotalBalanceDao
 import com.felixjhonata.simplebudgetapp.data.room.dao.TransactionDao
+import com.felixjhonata.simplebudgetapp.data.room.database.SimpleBudgetAppDatabase
+import com.felixjhonata.simplebudgetapp.data.room.entity.TotalBalance
 import com.felixjhonata.simplebudgetapp.data.room.entity.Transaction
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AddTransactionRepository @Inject constructor(
-    private val transactionDao: TransactionDao
+    private val db: SimpleBudgetAppDatabase,
+    private val transactionDao: TransactionDao,
+    private val totalBalanceDao: TotalBalanceDao
 ) {
-    suspend fun addTransaction(transaction: Transaction) =
-        transactionDao.addTransaction(transaction)
+    suspend fun addTransaction(transaction: Transaction) {
+        db.withTransaction {
+            transactionDao.addTransaction(transaction)
+
+            val oldBalance = totalBalanceDao.getTotalBalance().first().totalBalance
+            val newBalance = if (transaction.type == "INCOME") {
+                oldBalance + transaction.amount
+            } else {
+                oldBalance - transaction.amount
+            }
+
+            totalBalanceDao.updateTotalBalance(
+                TotalBalance(1, newBalance)
+            )
+        }
+    }
 }

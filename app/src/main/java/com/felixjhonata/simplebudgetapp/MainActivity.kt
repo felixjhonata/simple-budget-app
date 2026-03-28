@@ -4,8 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.felixjhonata.simplebudgetapp.model.AddTransaction
 import com.felixjhonata.simplebudgetapp.model.Home
@@ -24,6 +26,10 @@ class MainActivity : ComponentActivity() {
 
             SimpleBudgetAppTheme {
                 NavDisplay(
+                    entryDecorators = listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator()
+                    ),
                     backStack = navBackStack,
                     onBack = { navBackStack.removeLastOrNull() },
                     entryProvider = entryProvider {
