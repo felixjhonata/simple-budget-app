@@ -42,63 +42,6 @@ import com.felixjhonata.simplebudgetapp.util.toLocalizedString
 import com.felixjhonata.simplebudgetapp.viewmodel.HomeViewModel
 
 @Composable
-fun AppLogoAndName(modifier: Modifier = Modifier) {
-    Row(
-        modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Icon(
-            painterResource(R.drawable.ic_wallet),
-            "app_logo",
-            modifier = Modifier.size(32.dp)
-        )
-
-        Text(
-            "Simple Budget App",
-            style = TextStyle(
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
-        )
-    }
-}
-
-@Composable
-fun TotalBalanceCard(
-    totalBalance: String,
-    modifier: Modifier = Modifier
-) {
-    Card(modifier) {
-        Column(
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                "Total Saldo",
-                style = TextStyle(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-            )
-
-            HorizontalDivider(
-                modifier = Modifier.padding(8.dp)
-            )
-
-            Text(
-                "IDR $totalBalance",
-                style = TextStyle(
-                    fontSize = 24.sp
-                )
-            )
-        }
-    }
-}
-
-@Composable
 fun HomePage(
     navBackStack: NavBackStack<NavKey>,
     modifier: Modifier = Modifier,
@@ -205,6 +148,63 @@ fun HomePage(
                     else -> Unit
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun AppLogoAndName(modifier: Modifier = Modifier) {
+    Row(
+        modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            painterResource(R.drawable.ic_wallet),
+            "app_logo",
+            modifier = Modifier.size(32.dp)
+        )
+
+        Text(
+            "Simple Budget App",
+            style = TextStyle(
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        )
+    }
+}
+
+@Composable
+fun TotalBalanceCard(
+    totalBalance: String,
+    modifier: Modifier = Modifier
+) {
+    Card(modifier) {
+        Column(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Total Saldo",
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(8.dp)
+            )
+
+            Text(
+                "IDR $totalBalance",
+                style = TextStyle(
+                    fontSize = 24.sp
+                )
+            )
         }
     }
 }
