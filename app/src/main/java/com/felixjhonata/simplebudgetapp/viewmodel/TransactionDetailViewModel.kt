@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -60,7 +61,7 @@ class TransactionDetailViewModel @AssistedInject constructor(
             transaction?.let {
                 transactionRepository.deleteTransaction(it)
             }
-            onComplete.invoke()
+            withContext(Dispatchers.Main) { onComplete.invoke() }
         }
     }
 
