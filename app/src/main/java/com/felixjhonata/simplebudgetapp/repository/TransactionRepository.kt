@@ -11,12 +11,24 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AddTransactionRepository @Inject constructor(
+class TransactionRepository @Inject constructor(
     private val db: SimpleBudgetAppDatabase,
     private val transactionDao: TransactionDao,
     private val totalBalanceDao: TotalBalanceDao
 ) {
-    suspend fun addTransaction(transaction: Transaction) {
+    // Total Balance
+
+    fun getTotalBalance() = totalBalanceDao.getTotalBalance()
+
+    suspend fun insertTotalBalance(totalBalance: TotalBalance) {
+        return totalBalanceDao.insertTotalBalance(totalBalance)
+    }
+
+    // Transaction
+
+    fun getTransactions() = transactionDao.getAll()
+
+    suspend fun insertTransaction(transaction: Transaction) {
         db.withTransaction {
             transactionDao.addTransaction(transaction)
 

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felixjhonata.simplebudgetapp.data.room.entity.Transaction
 import com.felixjhonata.simplebudgetapp.model.TransactionType
-import com.felixjhonata.simplebudgetapp.repository.AddTransactionRepository
+import com.felixjhonata.simplebudgetapp.repository.TransactionRepository
 import com.felixjhonata.simplebudgetapp.util.toLocalizedString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ import kotlin.math.floor
 
 @HiltViewModel
 class AddTransactionViewModel @Inject constructor(
-    private val addTransactionRepository: AddTransactionRepository
+    private val transactionRepository: TransactionRepository
 ): ViewModel() {
     private val _numDisplay = MutableStateFlow("0")
     val numDisplay = _numDisplay.asStateFlow()
@@ -44,7 +44,7 @@ class AddTransactionViewModel @Inject constructor(
 
     fun addTransaction() {
         viewModelScope.launch(Dispatchers.IO) {
-            addTransactionRepository.addTransaction(
+            transactionRepository.insertTransaction(
                 Transaction(
                     type = currentMode.value.toString(),
                     currency = "IDR",

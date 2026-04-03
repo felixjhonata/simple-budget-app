@@ -11,7 +11,7 @@ import androidx.paging.map
 import com.felixjhonata.simplebudgetapp.data.room.entity.TotalBalance
 import com.felixjhonata.simplebudgetapp.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.model.TransactionType
-import com.felixjhonata.simplebudgetapp.repository.HomeRepository
+import com.felixjhonata.simplebudgetapp.repository.TransactionRepository
 import com.felixjhonata.simplebudgetapp.util.toLocalizedString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val homeRepository: HomeRepository
+    private val transactionRepository: TransactionRepository
 ): ViewModel() {
     private val _totalBalance = MutableStateFlow("0")
     val totalBalance = _totalBalance.asStateFlow()
@@ -37,7 +37,7 @@ class HomeViewModel @Inject constructor(
         Pager(
             config = PagingConfig(50),
         ) {
-            homeRepository.getTransactions()
+            transactionRepository.getTransactions()
         }.flow.map { pagingData ->
             pagingData.map {
                 TransactionItemUiModel.TransactionItem(
@@ -70,14 +70,14 @@ class HomeViewModel @Inject constructor(
     fun getTotalBalance(shouldRetry: Boolean = true) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                homeRepository.getTotalBalance().collect { item ->
+                transactionRepository.getTotalBalance().collect { item ->
                     _totalBalance.update {
                         item.totalBalance.toLocalizedString()
                     }
                 }
             } catch (e: Exception) {
                 Log.e("ERROR", e.localizedMessage ?: "")
-                homeRepository.insertTotalBalance(TotalBalance(1, 0.0))
+                transactionRepository.insertTotalBalance(TotalBalance(1, 0.0))
                 if (shouldRetry) getTotalBalance(false)
             }
         }
