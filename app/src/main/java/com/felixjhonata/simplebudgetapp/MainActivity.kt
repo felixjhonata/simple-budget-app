@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -36,6 +39,12 @@ class MainActivity : ComponentActivity() {
                     ),
                     backStack = navBackStack,
                     onBack = { navBackStack.removeLastOrNull() },
+                    transitionSpec = {
+                        slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
+                    },
+                    popTransitionSpec = {
+                        slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
+                    },
                     entryProvider = entryProvider {
                         entry<Home> {
                             HomePage(navBackStack)
