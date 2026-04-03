@@ -71,7 +71,7 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     // optional - Compose Navigation Integration
-    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     // ======
 
     // ======
