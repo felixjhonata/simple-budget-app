@@ -9,7 +9,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -82,7 +85,10 @@ private fun ActionButton(
 }
 
 @Composable
-private fun BottomBar(modifier: Modifier = Modifier) {
+private fun BottomBar(
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     BottomAppBar {
         Row(
             modifier = modifier,
@@ -97,14 +103,15 @@ private fun BottomBar(modifier: Modifier = Modifier) {
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer
                 ),
-            ) { }
+                onClick = onDelete
+            )
 
             ActionButton(
                 "Ubah",
                 Icons.Default.Edit,
                 "edit_icon",
                 modifier = Modifier.weight(1f)
-            ) {  }
+            ) { }
         }
     }
 }
@@ -126,12 +133,40 @@ fun TransactionDetailPage(
         },
         bottomBar = {
             BottomBar(
-                Modifier
+                viewModel::toggleDeleteDialog,
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
             )
         }
     ) { innerPadding ->
+        if (uiState.showDeleteDialog) {
+            AlertDialog(
+                viewModel::toggleDeleteDialog,
+                title = { Text("Hapus Transaksi") },
+                text = {
+                    Text("Apakah anda yakin ingin menghapus transaksi ini?")
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.toggleDeleteDialog()
+                            viewModel.deleteTransaction {
+                                navBackStack.removeLastOrNull()
+                            }
+                        }
+                    ) {
+                        Text("Iya")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = viewModel::toggleDeleteDialog) {
+                        Text("Batal")
+                    }
+                }
+            )
+        }
+
         Column(modifier = Modifier.padding(innerPadding)) {
             Row(
                 modifier = Modifier

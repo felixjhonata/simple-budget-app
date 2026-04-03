@@ -2,6 +2,7 @@ package com.felixjhonata.simplebudgetapp.data.room.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.felixjhonata.simplebudgetapp.data.room.entity.Transaction
@@ -16,4 +17,7 @@ interface TransactionDao {
 
     @Insert
     suspend fun addTransaction(transaction: Transaction)
+
+    @Delete
+    suspend fun deleteTransaction(transaction: Transaction)
 }
