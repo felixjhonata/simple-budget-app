@@ -45,4 +45,21 @@ class TransactionRepository @Inject constructor(
             )
         }
     }
+
+    suspend fun deleteTransaction(transaction: Transaction) {
+        db.withTransaction {
+            transactionDao.deleteTransaction(transaction)
+
+            val oldBalance = totalBalanceDao.getTotalBalance().first().totalBalance
+            val newBalance = if (transaction.type == "INCOME") {
+                oldBalance - transaction.amount
+            } else {
+                oldBalance + transaction.amount
+            }
+
+            totalBalanceDao.updateTotalBalance(
+                TotalBalance(1, newBalance)
+            )
+        }
+    }
 }
