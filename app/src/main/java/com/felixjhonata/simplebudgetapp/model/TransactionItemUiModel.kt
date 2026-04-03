@@ -6,6 +6,7 @@ sealed interface TransactionItemUiModel {
     ): TransactionItemUiModel
 
     data class TransactionItem(
+        val id: Int,
         val type: TransactionType,
         val currency: String,
         val amount: Double,

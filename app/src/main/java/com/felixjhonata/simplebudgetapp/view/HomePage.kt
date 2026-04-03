@@ -1,6 +1,7 @@
 package com.felixjhonata.simplebudgetapp.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.felixjhonata.simplebudgetapp.R
 import com.felixjhonata.simplebudgetapp.model.AddTransaction
+import com.felixjhonata.simplebudgetapp.model.TransactionDetail
 import com.felixjhonata.simplebudgetapp.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.util.toLocalizedString
 import com.felixjhonata.simplebudgetapp.viewmodel.HomeViewModel
@@ -119,12 +121,12 @@ fun HomePage(
                     is TransactionItemUiModel.TransactionItem -> {
                         Row(
                             modifier = Modifier
-                                .padding(
-                                    top = 8.dp,
-                                    start = 24.dp,
-                                    end = 24.dp
-                                )
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                                .clickable {
+                                    navBackStack.add(TransactionDetail(item.id))
+                                }
+                                .padding(horizontal = 24.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(

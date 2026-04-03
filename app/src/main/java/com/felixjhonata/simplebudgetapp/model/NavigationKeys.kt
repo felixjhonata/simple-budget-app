@@ -8,3 +8,8 @@ data object Home: NavKey
 
 @Serializable
 data object AddTransaction: NavKey
+
+@Serializable
+data class TransactionDetail(
+    val id: Int
+): NavKey

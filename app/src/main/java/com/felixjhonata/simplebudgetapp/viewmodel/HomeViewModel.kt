@@ -12,6 +12,7 @@ import com.felixjhonata.simplebudgetapp.data.room.entity.TotalBalance
 import com.felixjhonata.simplebudgetapp.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.model.TransactionType
 import com.felixjhonata.simplebudgetapp.repository.TransactionRepository
+import com.felixjhonata.simplebudgetapp.util.convertEpochSecondToLocalDateTime
 import com.felixjhonata.simplebudgetapp.util.toLocalizedString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +42,7 @@ class HomeViewModel @Inject constructor(
         }.flow.map { pagingData ->
             pagingData.map {
                 TransactionItemUiModel.TransactionItem(
+                    id = it.id,
                     type = TransactionType.valueOf(it.type),
                     currency = it.currency,
                     amount = it.amount,
@@ -102,11 +104,6 @@ class HomeViewModel @Inject constructor(
                 || beforeDate.dayOfMonth != afterDate.dayOfMonth
     }
 
-    fun formatDate(epochSecond: Long): String {
-        val instant = Instant.ofEpochSecond(epochSecond)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-
-        return instant.format(formatter)
-    }
+    fun formatDate(epochSecond: Long): String =
+        epochSecond.convertEpochSecondToLocalDateTime().format(formatter)
 }

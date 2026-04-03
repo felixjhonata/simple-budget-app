@@ -25,8 +25,9 @@ class TransactionRepository @Inject constructor(
     }
 
     // Transaction
+    suspend fun getTransaction(id: Int) = transactionDao.getTransaction(id)
 
-    fun getTransactions() = transactionDao.getAll()
+    fun getTransactions() = transactionDao.getTransactions()
 
     suspend fun insertTransaction(transaction: Transaction) {
         db.withTransaction {
