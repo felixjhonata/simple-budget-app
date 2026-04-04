@@ -45,6 +45,9 @@ class MainActivity : ComponentActivity() {
                     popTransitionSpec = {
                         slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
                     },
+                    predictivePopTransitionSpec = {
+                        slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
+                    },
                     entryProvider = entryProvider {
                         entry<Home> {
                             HomePage(navBackStack)
