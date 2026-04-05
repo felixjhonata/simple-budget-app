@@ -3,18 +3,14 @@ package com.felixjhonata.simplebudgetapp.view
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -37,6 +33,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.felixjhonata.simplebudgetapp.model.EditTransactionDialog
+import com.felixjhonata.simplebudgetapp.view.components.DateField
 import com.felixjhonata.simplebudgetapp.view.components.InputField
 import com.felixjhonata.simplebudgetapp.view.components.Keyboard
 import com.felixjhonata.simplebudgetapp.viewmodel.EditTransactionViewModel
@@ -133,26 +130,15 @@ fun EditTransactionPage(
                 .fillMaxHeight(),
             verticalArrangement = Arrangement.Center
         ) {
-            Row(
+            DateField(
+                uiState.date,
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(horizontal = 24.dp)
                     .clickable {
                         viewModel.setDialog(EditTransactionDialog.DatePicker)
-                    },
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(uiState.date)
-
-                Spacer(Modifier.width(4.dp))
-
-                Icon(
-                    Icons.Default.Edit,
-                    "edit_date_button",
-                    modifier = Modifier.size(14.dp)
-                )
-            }
+                    }
+            )
 
             Spacer(Modifier.height(12.dp))
 

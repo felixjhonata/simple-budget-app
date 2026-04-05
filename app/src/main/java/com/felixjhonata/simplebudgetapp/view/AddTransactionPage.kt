@@ -1,5 +1,6 @@
 package com.felixjhonata.simplebudgetapp.view
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,20 +11,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.felixjhonata.simplebudgetapp.model.AddTransactionDialog
+import com.felixjhonata.simplebudgetapp.view.components.DateField
 import com.felixjhonata.simplebudgetapp.view.components.InputField
 import com.felixjhonata.simplebudgetapp.view.components.Keyboard
 import com.felixjhonata.simplebudgetapp.viewmodel.AddTransactionViewModel
@@ -59,14 +68,17 @@ private fun AddTransactionAppBar(modifier: Modifier = Modifier, onDone: () -> Un
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransactionPage(
     navBackStack: NavBackStack<NavKey>,
     modifier: Modifier = Modifier,
     viewModel: AddTransactionViewModel = hiltViewModel()
 ) {
-    val numDisplay by viewModel.numDisplay.collectAsState()
-    val currentMode by viewModel.currentMode.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = uiState.dateInMillis
+    )
 
     Scaffold(
         modifier = modifier,
@@ -82,14 +94,57 @@ fun AddTransactionPage(
             }
         }
     ) { innerPadding ->
+        when (uiState.dialog) {
+            AddTransactionDialog.DatePicker -> {
+                DatePickerDialog(
+                    onDismissRequest = viewModel::hideDialog,
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                viewModel.setDateInMillis(
+                                    datePickerState.selectedDateMillis
+                                )
+                                viewModel.hideDialog()
+                            }
+                        ) {
+                            Text("Ok")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = viewModel::hideDialog
+                        ) {
+                            Text("Batal")
+                        }
+                    }
+                ) {
+                    DatePicker(datePickerState)
+                }
+            }
+
+            AddTransactionDialog.None -> Unit
+        }
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxHeight(),
             verticalArrangement = Arrangement.Center
         ) {
+            DateField(
+                uiState.date,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(horizontal = 24.dp)
+                    .clickable {
+                        viewModel.showDialog(AddTransactionDialog.DatePicker)
+                    }
+            )
+
+            Spacer(Modifier.height(12.dp))
+
             InputField(
-                numDisplay = numDisplay,
+                numDisplay = uiState.numDisplay,
                 modifier = Modifier
                     .padding(
                         horizontal = 24.dp
@@ -103,7 +158,7 @@ fun AddTransactionPage(
                 modifier = Modifier.padding(
                     horizontal = 24.dp
                 ),
-                currentMode = currentMode,
+                currentMode = uiState.currentMode,
                 setCurrentInput = viewModel::setCurrentInput,
                 onBackSpace = viewModel::onBackSpace,
                 onToggleMode = viewModel::toggleMode
