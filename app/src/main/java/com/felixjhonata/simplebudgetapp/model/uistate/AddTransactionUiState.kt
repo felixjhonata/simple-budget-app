@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 data class AddTransactionUiState(
     val date: String,
     val dateInMillis: Long,
-    val numDisplay: String = "",
+    val numDisplay: String = "0",
     val currentMode: TransactionType = TransactionType.EXPENSE,
     val dialog: AddTransactionDialog = AddTransactionDialog.None
 ) {
