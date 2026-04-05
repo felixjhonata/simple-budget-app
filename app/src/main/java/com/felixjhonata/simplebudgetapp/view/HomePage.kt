@@ -26,10 +26,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -157,10 +160,16 @@ fun HomePage(
                 }
             } else {
                 item {
+                    val density = LocalDensity.current
+                    val screenHeight = with(density) {
+                        LocalWindowInfo.current.containerSize.height.toDp()
+                    }
+                    val height = (screenHeight - 300.dp).coerceAtLeast(100.dp)
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(500.dp),
+                            .height(height),
                         contentAlignment = Alignment.Center
                     ) {
                         Text("Belum ada transaksi")
