@@ -40,8 +40,6 @@ import com.felixjhonata.simplebudgetapp.model.EditTransactionDialog
 import com.felixjhonata.simplebudgetapp.view.components.InputField
 import com.felixjhonata.simplebudgetapp.view.components.Keyboard
 import com.felixjhonata.simplebudgetapp.viewmodel.EditTransactionViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,9 +83,7 @@ fun EditTransactionPage(
 
     LaunchedEffect(id) {
         viewModel.load(id) {
-            withContext(Dispatchers.Main) {
-                datePickerState.selectedDateMillis = uiState.dateInMillis
-            }
+            datePickerState.selectedDateMillis = uiState.dateInMillis
         }
     }
 
@@ -96,7 +92,11 @@ fun EditTransactionPage(
         topBar = {
             TopBar(
                 onBack = { navBackStack.removeLastOrNull() },
-                onDone = { viewModel.updateTransaction { navBackStack.removeLastOrNull() } }
+                onDone = {
+                    viewModel.updateTransaction {
+                        navBackStack.removeLastOrNull()
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -123,6 +123,7 @@ fun EditTransactionPage(
                     DatePicker(datePickerState)
                 }
             }
+
             EditTransactionDialog.None -> Unit
         }
 

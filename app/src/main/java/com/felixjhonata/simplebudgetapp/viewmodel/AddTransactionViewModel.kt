@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import javax.inject.Inject
 import kotlin.math.floor
@@ -42,7 +43,7 @@ class AddTransactionViewModel @Inject constructor(
         currentInput = floor(currentInput / 10)
     }
 
-    fun addTransaction() {
+    fun addTransaction(onComplete: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             transactionRepository.insertTransaction(
                 Transaction(
@@ -52,6 +53,8 @@ class AddTransactionViewModel @Inject constructor(
                     date = Instant.now().epochSecond
                 )
             )
+
+            withContext(Dispatchers.Main) { onComplete.invoke() }
         }
     }
 
