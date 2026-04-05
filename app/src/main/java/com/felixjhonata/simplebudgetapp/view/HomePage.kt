@@ -95,59 +95,76 @@ fun HomePage(
                 )
             }
 
-            items(transactionItems.itemCount) { position ->
-                when(val item = transactionItems[position]) {
-                    is TransactionItemUiModel.Date -> {
-                        Box(
-                            Modifier
-                                .padding(top = 18.dp)
-                                .background(MaterialTheme.colorScheme.surfaceContainer)
-                                .fillMaxWidth()
-                        ) {
-                            Text(
-                                viewModel.formatDate(item.epochTime),
-                                modifier = Modifier.padding(
-                                    vertical = 4.dp,
-                                    horizontal = 24.dp
-                                ),
-                                style = TextStyle(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp
+            if (transactionItems.itemCount > 0) {
+                items(transactionItems.itemCount) { position ->
+                    when(val item = transactionItems[position]) {
+                        is TransactionItemUiModel.Date -> {
+                            Box(
+                                Modifier
+                                    .padding(top = 18.dp)
+                                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    viewModel.formatDate(item.epochTime),
+                                    modifier = Modifier.padding(
+                                        vertical = 4.dp,
+                                        horizontal = 24.dp
+                                    ),
+                                    style = TextStyle(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp
+                                    )
                                 )
-                            )
+                            }
                         }
-                    }
 
-                    is TransactionItemUiModel.TransactionItem -> {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp)
-                                .clickable {
-                                    navBackStack.add(TransactionDetail(item.id))
-                                }
-                                .padding(horizontal = 24.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                item.type.toString(),
-                                style = TextStyle(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp
+                        is TransactionItemUiModel.TransactionItem -> {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp)
+                                    .clickable {
+                                        navBackStack.add(TransactionDetail(item.id))
+                                    }
+                                    .padding(horizontal = 24.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    item.type.toString(),
+                                    style = TextStyle(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp
+                                    )
                                 )
-                            )
 
-                            Text(
-                                "${item.currency} ${item.amount.toLocalizedString()}",
-                                style = TextStyle(
-                                    fontSize = 14.sp,
-                                    textAlign = TextAlign.End
+                                Text(
+                                    "${item.currency} ${item.amount.toLocalizedString()}",
+                                    style = TextStyle(
+                                        fontSize = 14.sp,
+                                        textAlign = TextAlign.End
+                                    )
                                 )
-                            )
+                            }
                         }
-                    }
 
-                    else -> Unit
+                        else -> Unit
+                    }
+                }
+
+                item {
+                    Spacer(Modifier.height(96.dp))
+                }
+            } else {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(500.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Belum ada transaksi")
+                    }
                 }
             }
         }
