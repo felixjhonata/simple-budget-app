@@ -9,8 +9,7 @@ import com.felixjhonata.simplebudgetapp.data.room.entity.Transaction
 
 @Database(
     entities = [Transaction::class, TotalBalance::class],
-    version = 1,
-    exportSchema = false
+    version = 1
 )
 abstract class SimpleBudgetAppDatabase: RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
