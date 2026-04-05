@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,8 +34,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.felixjhonata.simplebudgetapp.model.EditTransaction
 import com.felixjhonata.simplebudgetapp.viewmodel.TransactionDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,6 +90,7 @@ private fun ActionButton(
 @Composable
 private fun BottomBar(
     onDelete: () -> Unit,
+    onEdit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     BottomAppBar {
@@ -110,19 +114,25 @@ private fun BottomBar(
                 "Ubah",
                 Icons.Default.Edit,
                 "edit_icon",
-                modifier = Modifier.weight(1f)
-            ) { }
+                modifier = Modifier.weight(1f),
+                onClick = onEdit
+            )
         }
     }
 }
 
 @Composable
 fun TransactionDetailPage(
-    viewModel: TransactionDetailViewModel,
+    id: Int,
     navBackStack: NavBackStack<NavKey>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: TransactionDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(id) {
+        viewModel.load(id)
+    }
 
     Scaffold(
         modifier = modifier,
@@ -134,6 +144,7 @@ fun TransactionDetailPage(
         bottomBar = {
             BottomBar(
                 viewModel::toggleDeleteDialog,
+                { navBackStack.add(EditTransaction(id)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)

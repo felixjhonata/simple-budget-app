@@ -23,7 +23,7 @@ class AddTransactionViewModel @Inject constructor(
     private val _numDisplay = MutableStateFlow("0")
     val numDisplay = _numDisplay.asStateFlow()
 
-    private val _currentMode = MutableStateFlow(TransactionType.INCOME)
+    private val _currentMode = MutableStateFlow(TransactionType.EXPENSE)
     val currentMode = _currentMode.asStateFlow()
 
     private var currentInput = 0.0

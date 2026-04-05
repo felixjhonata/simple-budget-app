@@ -10,6 +10,7 @@ data object Home: NavKey
 data object AddTransaction: NavKey
 
 @Serializable
-data class TransactionDetail(
-    val id: Int
-): NavKey
+data class TransactionDetail(val id: Int): NavKey
+
+@Serializable
+data class EditTransaction(val id: Int): NavKey

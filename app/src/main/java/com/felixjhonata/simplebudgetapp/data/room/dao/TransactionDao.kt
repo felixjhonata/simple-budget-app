@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.felixjhonata.simplebudgetapp.data.room.entity.Transaction
 
 @Dao
@@ -17,6 +18,9 @@ interface TransactionDao {
 
     @Insert
     suspend fun addTransaction(transaction: Transaction)
+
+    @Update
+    suspend fun updateTransaction(transaction: Transaction)
 
     @Delete
     suspend fun deleteTransaction(transaction: Transaction)
