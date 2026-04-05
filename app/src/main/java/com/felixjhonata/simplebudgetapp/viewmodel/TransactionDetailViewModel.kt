@@ -7,9 +7,6 @@ import com.felixjhonata.simplebudgetapp.model.uistate.TransactionDetailUiState
 import com.felixjhonata.simplebudgetapp.repository.TransactionRepository
 import com.felixjhonata.simplebudgetapp.util.convertEpochSecondToLocalDateTime
 import com.felixjhonata.simplebudgetapp.util.toLocalizedString
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,10 +16,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import javax.inject.Inject
 
-@HiltViewModel(assistedFactory = TransactionDetailViewModel.Factory::class)
-class TransactionDetailViewModel @AssistedInject constructor(
-    @Assisted private val id: Int,
+@HiltViewModel
+class TransactionDetailViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository
 ): ViewModel() {
     private val _uiState = MutableStateFlow(TransactionDetailUiState())
@@ -34,15 +31,10 @@ class TransactionDetailViewModel @AssistedInject constructor(
         DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm", Locale.getDefault())
     }
 
-    @AssistedFactory
-    interface Factory {
-        fun create(id: Int): TransactionDetailViewModel
-    }
-
     private fun formatEpoch(epoch: Long): String =
         epoch.convertEpochSecondToLocalDateTime().format(formatter)
 
-    init {
+    fun load(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             transaction = transactionRepository.getTransaction(id)
 

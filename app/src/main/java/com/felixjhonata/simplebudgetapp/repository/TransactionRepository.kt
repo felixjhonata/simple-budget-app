@@ -33,11 +33,39 @@ class TransactionRepository @Inject constructor(
         db.withTransaction {
             transactionDao.addTransaction(transaction)
 
-            val oldBalance = totalBalanceDao.getTotalBalance().first().totalBalance
+            val currentBalance = totalBalanceDao.getTotalBalance().first().totalBalance
             val newBalance = if (transaction.type == "INCOME") {
-                oldBalance + transaction.amount
+                currentBalance + transaction.amount
             } else {
-                oldBalance - transaction.amount
+                currentBalance - transaction.amount
+            }
+
+            totalBalanceDao.updateTotalBalance(
+                TotalBalance(1, newBalance)
+            )
+        }
+    }
+
+    suspend fun updateTransaction(oldTransaction: Transaction, newTransaction: Transaction) {
+        db.withTransaction {
+            transactionDao.updateTransaction(newTransaction)
+
+            val currentBalance = totalBalanceDao.getTotalBalance().first().totalBalance
+            val oldAmount = oldTransaction.amount
+            val newAmount = newTransaction.amount
+
+            var newBalance = currentBalance
+
+            if (oldTransaction.type == "INCOME") {
+                newBalance -= oldAmount
+            } else {
+                newBalance += oldAmount
+            }
+
+            if (newTransaction.type == "INCOME") {
+                newBalance += newAmount
+            } else {
+                newBalance -= newAmount
             }
 
             totalBalanceDao.updateTotalBalance(

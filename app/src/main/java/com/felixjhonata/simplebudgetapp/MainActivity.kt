@@ -7,20 +7,20 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.felixjhonata.simplebudgetapp.model.AddTransaction
+import com.felixjhonata.simplebudgetapp.model.EditTransaction
 import com.felixjhonata.simplebudgetapp.model.Home
 import com.felixjhonata.simplebudgetapp.model.TransactionDetail
 import com.felixjhonata.simplebudgetapp.ui.theme.SimpleBudgetAppTheme
 import com.felixjhonata.simplebudgetapp.view.AddTransactionPage
+import com.felixjhonata.simplebudgetapp.view.EditTransactionPage
 import com.felixjhonata.simplebudgetapp.view.HomePage
 import com.felixjhonata.simplebudgetapp.view.TransactionDetailPage
-import com.felixjhonata.simplebudgetapp.viewmodel.TransactionDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -56,14 +56,14 @@ class MainActivity : ComponentActivity() {
                             AddTransactionPage(navBackStack)
                         }
                         entry<TransactionDetail> { entry ->
-                            val viewModel = hiltViewModel<TransactionDetailViewModel, TransactionDetailViewModel.Factory> { factory ->
-                                factory.create(
-                                    entry.id
-                                )
-                            }
-
                             TransactionDetailPage(
-                                viewModel,
+                                entry.id,
+                                navBackStack
+                            )
+                        }
+                        entry<EditTransaction> { entry ->
+                            EditTransactionPage(
+                                entry.id,
                                 navBackStack
                             )
                         }
