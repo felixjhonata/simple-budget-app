@@ -7,6 +7,7 @@ import com.felixjhonata.simplebudgetapp.model.EditTransactionDialog
 import com.felixjhonata.simplebudgetapp.model.TransactionType
 import com.felixjhonata.simplebudgetapp.model.uistate.EditTransactionUiState
 import com.felixjhonata.simplebudgetapp.repository.TransactionRepository
+import com.felixjhonata.simplebudgetapp.util.convertEpochMillisToLocalDateTime
 import com.felixjhonata.simplebudgetapp.util.convertEpochSecondToLocalDateTime
 import com.felixjhonata.simplebudgetapp.util.toLocalizedString
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -89,8 +90,7 @@ class EditTransactionViewModel @Inject constructor(
 
     fun setDate(epochMillis: Long) {
         _uiState.update {
-            val epochSecond = TimeUnit.MILLISECONDS.toSeconds(epochMillis)
-            val localDateTime = epochSecond.convertEpochSecondToLocalDateTime()
+            val localDateTime = epochMillis.convertEpochMillisToLocalDateTime()
             it.copy(
                 date = localDateTime.format(formatter),
                 dateInMillis = epochMillis

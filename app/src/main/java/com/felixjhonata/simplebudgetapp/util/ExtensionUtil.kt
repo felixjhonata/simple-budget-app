@@ -16,3 +16,7 @@ fun Double.toLocalizedString(
 fun Long.convertEpochSecondToLocalDateTime(
     zoneId: ZoneId = ZoneId.systemDefault()
 ): LocalDateTime = Instant.ofEpochSecond(this).atZone(zoneId).toLocalDateTime()
+
+fun Long.convertEpochMillisToLocalDateTime(
+    zoneId: ZoneId = ZoneId.systemDefault()
+): LocalDateTime = Instant.ofEpochMilli(this).atZone(zoneId).toLocalDateTime()
