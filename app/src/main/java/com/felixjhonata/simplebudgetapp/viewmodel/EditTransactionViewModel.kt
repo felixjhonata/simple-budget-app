@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -39,7 +40,7 @@ class EditTransactionViewModel @Inject constructor(
 
     private val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
 
-    fun load(id: Int, onComplete: suspend () -> Unit) {
+    fun load(id: Int, onComplete: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             oldTransaction = transactionRepository.getTransaction(id)
 
@@ -56,12 +57,12 @@ class EditTransactionViewModel @Inject constructor(
                     )
                 }
 
-                onComplete.invoke()
+                withContext(Dispatchers.Main) { onComplete.invoke() }
             }
         }
     }
 
-    fun updateTransaction(onComplete: suspend () -> Unit) {
+    fun updateTransaction(onComplete: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             with(uiState.value) {
                 oldTransaction?.let { oldTransactionDenull ->
@@ -75,7 +76,7 @@ class EditTransactionViewModel @Inject constructor(
                 }
             }
 
-            onComplete.invoke()
+            withContext(Dispatchers.Main) { onComplete.invoke() }
         }
     }
 

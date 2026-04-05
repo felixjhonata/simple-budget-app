@@ -73,8 +73,9 @@ fun AddTransactionPage(
         topBar = {
             AddTransactionAppBar(
                 onDone = {
-                    viewModel.addTransaction()
-                    navBackStack.removeLastOrNull()
+                    viewModel.addTransaction {
+                        navBackStack.removeLastOrNull()
+                    }
                 }
             ) {
                 navBackStack.removeLastOrNull()
