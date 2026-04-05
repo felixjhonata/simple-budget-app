@@ -82,8 +82,8 @@ fun EditTransactionPage(
     val datePickerState = rememberDatePickerState()
 
     LaunchedEffect(id) {
-        viewModel.load(id) {
-            datePickerState.selectedDateMillis = uiState.dateInMillis
+        viewModel.load(id) { dateInMillis ->
+            datePickerState.selectedDateMillis = dateInMillis
         }
     }
 
