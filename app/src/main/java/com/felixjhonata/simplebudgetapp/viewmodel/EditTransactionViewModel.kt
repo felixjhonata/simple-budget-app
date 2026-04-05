@@ -40,7 +40,7 @@ class EditTransactionViewModel @Inject constructor(
 
     private val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
 
-    fun load(id: Int, onComplete: () -> Unit) {
+    fun load(id: Int, setSelectedDate: (Long) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             oldTransaction = transactionRepository.getTransaction(id)
 
@@ -48,16 +48,17 @@ class EditTransactionViewModel @Inject constructor(
                 inputtedNumber = transaction.amount
 
                 val localDateTime = transaction.date.convertEpochSecondToLocalDateTime()
+                val dateInMillis = TimeUnit.SECONDS.toMillis(transaction.date)
 
                 _uiState.update {
                     it.copy(
                         type = TransactionType.valueOf(transaction.type),
                         date = localDateTime.format(formatter),
-                        dateInMillis = TimeUnit.SECONDS.toMillis(transaction.date)
+                        dateInMillis = dateInMillis
                     )
                 }
 
-                withContext(Dispatchers.Main) { onComplete.invoke() }
+                withContext(Dispatchers.Main) { setSelectedDate(dateInMillis) }
             }
         }
     }
