@@ -3,7 +3,7 @@ package com.felixjhonata.simplebudgetapp.transaction_detail.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felixjhonata.simplebudgetapp.shared.repository.TransactionRepository
-import com.felixjhonata.simplebudgetapp.shared.room.entity.Transaction
+import com.felixjhonata.simplebudgetapp.shared.data.room.entity.Transaction
 import com.felixjhonata.simplebudgetapp.shared.util.convertEpochSecondToLocalDateTime
 import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
 import com.felixjhonata.simplebudgetapp.transaction_detail.model.uistate.TransactionDetailUiState

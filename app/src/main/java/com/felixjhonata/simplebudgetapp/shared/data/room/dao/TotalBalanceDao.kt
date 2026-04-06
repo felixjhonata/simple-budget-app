@@ -1,10 +1,10 @@
-package com.felixjhonata.simplebudgetapp.shared.room.dao
+package com.felixjhonata.simplebudgetapp.shared.data.room.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.felixjhonata.simplebudgetapp.shared.room.entity.TotalBalance
+import com.felixjhonata.simplebudgetapp.shared.data.room.entity.TotalBalance
 import kotlinx.coroutines.flow.Flow
 
 @Dao

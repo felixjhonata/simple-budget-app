@@ -1,4 +1,4 @@
-package com.felixjhonata.simplebudgetapp.shared.room.dao
+package com.felixjhonata.simplebudgetapp.shared.data.room.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
@@ -6,7 +6,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.felixjhonata.simplebudgetapp.shared.room.entity.Transaction
+import com.felixjhonata.simplebudgetapp.shared.data.room.entity.Transaction
 
 @Dao
 interface TransactionDao {
