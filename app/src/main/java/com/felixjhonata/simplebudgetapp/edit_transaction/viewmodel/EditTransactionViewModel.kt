@@ -6,7 +6,7 @@ import com.felixjhonata.simplebudgetapp.edit_transaction.model.EditTransactionDi
 import com.felixjhonata.simplebudgetapp.edit_transaction.model.uistate.EditTransactionUiState
 import com.felixjhonata.simplebudgetapp.shared.model.TransactionType
 import com.felixjhonata.simplebudgetapp.shared.repository.TransactionRepository
-import com.felixjhonata.simplebudgetapp.shared.room.entity.Transaction
+import com.felixjhonata.simplebudgetapp.shared.data.room.entity.Transaction
 import com.felixjhonata.simplebudgetapp.shared.util.convertEpochMillisToLocalDateTime
 import com.felixjhonata.simplebudgetapp.shared.util.convertEpochSecondToLocalDateTime
 import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString

@@ -1,4 +1,4 @@
-package com.felixjhonata.simplebudgetapp.shared.room.module
+package com.felixjhonata.simplebudgetapp.shared.data.room.module
 
 import android.content.ContentValues
 import android.content.Context
@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.felixjhonata.simplebudgetapp.shared.room.database.SimpleBudgetAppDatabase
+import com.felixjhonata.simplebudgetapp.shared.data.room.database.SimpleBudgetAppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,4 +1,4 @@
-package com.felixjhonata.simplebudgetapp.shared.room.entity
+package com.felixjhonata.simplebudgetapp.shared.data.room.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

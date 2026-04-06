@@ -1,11 +1,11 @@
 package com.felixjhonata.simplebudgetapp.shared.repository
 
 import androidx.room.withTransaction
-import com.felixjhonata.simplebudgetapp.shared.room.dao.TotalBalanceDao
-import com.felixjhonata.simplebudgetapp.shared.room.dao.TransactionDao
-import com.felixjhonata.simplebudgetapp.shared.room.database.SimpleBudgetAppDatabase
-import com.felixjhonata.simplebudgetapp.shared.room.entity.TotalBalance
-import com.felixjhonata.simplebudgetapp.shared.room.entity.Transaction
+import com.felixjhonata.simplebudgetapp.shared.data.room.dao.TotalBalanceDao
+import com.felixjhonata.simplebudgetapp.shared.data.room.dao.TransactionDao
+import com.felixjhonata.simplebudgetapp.shared.data.room.database.SimpleBudgetAppDatabase
+import com.felixjhonata.simplebudgetapp.shared.data.room.entity.TotalBalance
+import com.felixjhonata.simplebudgetapp.shared.data.room.entity.Transaction
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton

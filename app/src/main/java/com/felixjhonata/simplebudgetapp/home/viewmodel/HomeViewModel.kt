@@ -11,7 +11,7 @@ import androidx.paging.map
 import com.felixjhonata.simplebudgetapp.home.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.shared.model.TransactionType
 import com.felixjhonata.simplebudgetapp.shared.repository.TransactionRepository
-import com.felixjhonata.simplebudgetapp.shared.room.entity.TotalBalance
+import com.felixjhonata.simplebudgetapp.shared.data.room.entity.TotalBalance
 import com.felixjhonata.simplebudgetapp.shared.util.convertEpochSecondToLocalDateTime
 import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
 import dagger.hilt.android.lifecycle.HiltViewModel
