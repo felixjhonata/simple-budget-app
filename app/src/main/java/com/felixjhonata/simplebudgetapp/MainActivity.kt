@@ -12,15 +12,15 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.felixjhonata.simplebudgetapp.model.AddTransaction
-import com.felixjhonata.simplebudgetapp.model.EditTransaction
-import com.felixjhonata.simplebudgetapp.model.Home
-import com.felixjhonata.simplebudgetapp.model.TransactionDetail
+import com.felixjhonata.simplebudgetapp.home.model.AddTransaction
+import com.felixjhonata.simplebudgetapp.home.model.EditTransaction
+import com.felixjhonata.simplebudgetapp.home.model.Home
+import com.felixjhonata.simplebudgetapp.home.model.TransactionDetail
 import com.felixjhonata.simplebudgetapp.ui.theme.SimpleBudgetAppTheme
-import com.felixjhonata.simplebudgetapp.view.AddTransactionPage
-import com.felixjhonata.simplebudgetapp.view.EditTransactionPage
-import com.felixjhonata.simplebudgetapp.view.HomePage
-import com.felixjhonata.simplebudgetapp.view.TransactionDetailPage
+import com.felixjhonata.simplebudgetapp.add_transaction.view.AddTransactionPage
+import com.felixjhonata.simplebudgetapp.edit_transaction.view.EditTransactionPage
+import com.felixjhonata.simplebudgetapp.home.view.HomePage
+import com.felixjhonata.simplebudgetapp.transaction_detail.view.TransactionDetailPage
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
