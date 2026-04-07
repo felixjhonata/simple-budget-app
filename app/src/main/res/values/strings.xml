@@ -11,4 +11,7 @@
     <string name="yes">Yes</string>
     <string name="edit_transaction">Edit Transaction</string>
     <string name="add_transaction">Add Transaction</string>
+    <string name="export_data">Export Data</string>
+    <string name="export_data_filename">transactions_export.json</string>
+    <string name="export_data_share_title">Share Transactions</string>
 </resources>

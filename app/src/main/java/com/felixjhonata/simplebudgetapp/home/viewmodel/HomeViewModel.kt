@@ -21,8 +21,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
@@ -33,6 +36,9 @@ class HomeViewModel @Inject constructor(
 ): ViewModel() {
     private val _totalBalance = MutableStateFlow("0")
     val totalBalance = _totalBalance.asStateFlow()
+
+    private val _exportJson = MutableStateFlow<String?>(null)
+    val exportJson = _exportJson.asStateFlow()
 
     val transactionItems by lazy {
         Pager(
@@ -65,6 +71,10 @@ class HomeViewModel @Inject constructor(
         DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.getDefault())
     }
 
+    private val isoFormatter by lazy {
+        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+    }
+
     init {
         getTotalBalance()
     }
@@ -83,6 +93,41 @@ class HomeViewModel @Inject constructor(
                 if (shouldRetry) getTotalBalance(false)
             }
         }
+    }
+
+    fun exportTransactions() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val transactions = transactionRepository.getAllTransactions()
+                val exportedAt = Instant.now()
+                    .atZone(ZoneOffset.UTC)
+                    .toLocalDateTime()
+                    .format(isoFormatter)
+
+                val jsonArray = JSONArray()
+                transactions.forEach { transaction ->
+                    val obj = JSONObject()
+                    obj.put("id", transaction.id)
+                    obj.put("type", transaction.type)
+                    obj.put("amount", transaction.amount)
+                    obj.put("currency", transaction.currency)
+                    obj.put("date", transaction.date)
+                    jsonArray.put(obj)
+                }
+
+                val root = JSONObject()
+                root.put("exported_at", exportedAt)
+                root.put("transactions", jsonArray)
+
+                _exportJson.update { root.toString(2) }
+            } catch (e: Exception) {
+                Log.e("ERROR", e.localizedMessage ?: "")
+            }
+        }
+    }
+
+    fun clearExportJson() {
+        _exportJson.update { null }
     }
 
     fun shouldSeparate(before: TransactionItemUiModel, after: TransactionItemUiModel): Boolean {

@@ -1,5 +1,6 @@
 package com.felixjhonata.simplebudgetapp.home.view
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,17 +16,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
@@ -36,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -46,7 +53,9 @@ import com.felixjhonata.simplebudgetapp.home.model.TransactionDetail
 import com.felixjhonata.simplebudgetapp.home.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
 import com.felixjhonata.simplebudgetapp.home.viewmodel.HomeViewModel
+import java.io.File
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(
     navBackStack: NavBackStack<NavKey>,
@@ -55,9 +64,50 @@ fun HomePage(
 ) {
     val totalBalance by viewModel.totalBalance.collectAsState()
     val transactionItems = viewModel.transactionItems.collectAsLazyPagingItems()
+    val exportJson by viewModel.exportJson.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(exportJson) {
+        val json = exportJson ?: return@LaunchedEffect
+
+        val exportsDir = File(context.cacheDir, "exports")
+        exportsDir.mkdirs()
+        val exportFile = File(exportsDir, context.getString(R.string.export_data_filename))
+        exportFile.writeText(json)
+
+        val uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            exportFile
+        )
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/json"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(
+            Intent.createChooser(shareIntent, context.getString(R.string.export_data_share_title))
+        )
+
+        viewModel.clearExportJson()
+    }
 
     Scaffold(
         modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = { AppLogoAndName() },
+                actions = {
+                    IconButton(onClick = viewModel::exportTransactions) {
+                        Icon(
+                            painterResource(R.drawable.ic_export),
+                            contentDescription = stringResource(R.string.export_data)
+                        )
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -74,13 +124,6 @@ fun HomePage(
         LazyColumn(
             modifier = Modifier.padding(innerPadding)
         ) {
-            item {
-                Spacer(Modifier.height(12.dp))
-                AppLogoAndName(
-                    Modifier.padding(horizontal = 24.dp)
-                )
-            }
-
             item {
                 TotalBalanceCard(
                     totalBalance,
