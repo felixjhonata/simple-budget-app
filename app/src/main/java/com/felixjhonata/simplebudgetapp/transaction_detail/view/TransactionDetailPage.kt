@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.felixjhonata.simplebudgetapp.R
 import com.felixjhonata.simplebudgetapp.home.model.EditTransaction
 import com.felixjhonata.simplebudgetapp.transaction_detail.viewmodel.TransactionDetailViewModel
 
@@ -47,7 +49,7 @@ private fun AppBar(
     onBackPressed: () -> Unit
 ) {
     TopAppBar(
-        title = { Text("Detail Transaksi") },
+        title = { Text(stringResource(R.string.transaction_detail)) },
         modifier = modifier,
         navigationIcon = {
             IconButton(onClick = onBackPressed) {
@@ -99,7 +101,7 @@ private fun BottomBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ActionButton(
-                "Hapus",
+                stringResource(R.string.delete),
                 Icons.Default.Delete,
                 "delete_icon",
                 modifier = Modifier.weight(1f),
@@ -111,7 +113,7 @@ private fun BottomBar(
             )
 
             ActionButton(
-                "Ubah",
+                stringResource(R.string.edit),
                 Icons.Default.Edit,
                 "edit_icon",
                 modifier = Modifier.weight(1f),
@@ -154,9 +156,9 @@ fun TransactionDetailPage(
         if (uiState.showDeleteDialog) {
             AlertDialog(
                 viewModel::toggleDeleteDialog,
-                title = { Text("Hapus Transaksi") },
+                title = { Text(stringResource(R.string.delete_transaction)) },
                 text = {
-                    Text("Apakah anda yakin ingin menghapus transaksi ini?")
+                    Text(stringResource(R.string.delete_transaction_confirmation))
                 },
                 confirmButton = {
                     Button(
@@ -167,12 +169,12 @@ fun TransactionDetailPage(
                             }
                         }
                     ) {
-                        Text("Iya")
+                        Text(stringResource(R.string.yes))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = viewModel::toggleDeleteDialog) {
-                        Text("Batal")
+                        Text(stringResource(android.R.string.cancel))
                     }
                 }
             )
