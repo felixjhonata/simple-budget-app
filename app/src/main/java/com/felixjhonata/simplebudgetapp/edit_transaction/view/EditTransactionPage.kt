@@ -28,10 +28,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.felixjhonata.simplebudgetapp.R
 import com.felixjhonata.simplebudgetapp.edit_transaction.model.EditTransactionDialog
 import com.felixjhonata.simplebudgetapp.shared.view.components.DateField
 import com.felixjhonata.simplebudgetapp.shared.view.components.InputField
@@ -47,7 +49,7 @@ private fun TopBar(
 ) {
     TopAppBar(
         modifier = modifier,
-        title = { Text("Ubah Transaksi") },
+        title = { Text(stringResource(R.string.edit_transaction)) },
         navigationIcon = {
             IconButton(onBack) {
                 Icon(
@@ -108,12 +110,12 @@ fun EditTransactionPage(
                             }
                             viewModel.hideDialog()
                         }) {
-                            Text("Ok")
+                            Text(stringResource(android.R.string.ok))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = viewModel::hideDialog) {
-                            Text("Batal")
+                            Text(stringResource(android.R.string.cancel))
                         }
                     }
                 ) {

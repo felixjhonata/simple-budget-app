@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -89,7 +90,7 @@ fun HomePage(
 
             item {
                 Text(
-                    "Transaksi",
+                    stringResource(R.string.transaction),
                     modifier = Modifier.padding(horizontal = 24.dp),
                     style = TextStyle(
                         fontWeight = FontWeight.Bold,
@@ -172,7 +173,7 @@ fun HomePage(
                             .height(height),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Belum ada transaksi")
+                        Text(stringResource(R.string.no_transaction_yet))
                     }
                 }
             }
@@ -194,7 +195,7 @@ fun AppLogoAndName(modifier: Modifier = Modifier) {
         )
 
         Text(
-            "Simple Budget App",
+            stringResource(R.string.app_name),
             style = TextStyle(
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
@@ -216,7 +217,7 @@ fun TotalBalanceCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "Total Saldo",
+                stringResource(R.string.total_balance),
                 style = TextStyle(
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
