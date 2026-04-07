@@ -25,7 +25,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
@@ -71,10 +70,6 @@ class HomeViewModel @Inject constructor(
         DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.getDefault())
     }
 
-    private val isoFormatter by lazy {
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    }
-
     init {
         getTotalBalance()
     }
@@ -99,10 +94,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val transactions = transactionRepository.getAllTransactions()
-                val exportedAt = Instant.now()
-                    .atZone(ZoneOffset.UTC)
-                    .toLocalDateTime()
-                    .format(isoFormatter)
+                val exportedAt = Instant.now().toString()
 
                 val jsonArray = JSONArray()
                 transactions.forEach { transaction ->
@@ -121,7 +113,7 @@ class HomeViewModel @Inject constructor(
 
                 _exportJson.update { root.toString(2) }
             } catch (e: Exception) {
-                Log.e("ERROR", e.localizedMessage ?: "")
+                Log.e("HomeViewModel", "Failed to export transactions", e)
             }
         }
     }

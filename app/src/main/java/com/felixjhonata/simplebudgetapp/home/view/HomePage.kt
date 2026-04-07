@@ -70,27 +70,31 @@ fun HomePage(
     LaunchedEffect(exportJson) {
         val json = exportJson ?: return@LaunchedEffect
 
-        val exportsDir = File(context.cacheDir, "exports")
-        exportsDir.mkdirs()
-        val exportFile = File(exportsDir, context.getString(R.string.export_data_filename))
-        exportFile.writeText(json)
+        try {
+            val exportsDir = File(context.cacheDir, "exports")
+            exportsDir.mkdirs()
+            val exportFile = File(exportsDir, context.getString(R.string.export_data_filename))
+            exportFile.writeText(json)
 
-        val uri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            exportFile
-        )
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                exportFile
+            )
 
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "application/json"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/json"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(
+                Intent.createChooser(shareIntent, context.getString(R.string.export_data_share_title))
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("HomePage", "Failed to share export file", e)
+        } finally {
+            viewModel.clearExportJson()
         }
-        context.startActivity(
-            Intent.createChooser(shareIntent, context.getString(R.string.export_data_share_title))
-        )
-
-        viewModel.clearExportJson()
     }
 
     Scaffold(
