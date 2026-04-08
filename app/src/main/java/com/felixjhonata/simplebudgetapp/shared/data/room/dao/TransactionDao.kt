@@ -16,6 +16,9 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions ORDER BY date DESC, id DESC")
     fun getTransactions(): PagingSource<Int, Transaction>
 
+    @Query("SELECT * FROM transactions ORDER BY date DESC, id DESC")
+    suspend fun getTransactionList(): List<Transaction>
+
     @Insert
     suspend fun addTransaction(transaction: Transaction)
 
