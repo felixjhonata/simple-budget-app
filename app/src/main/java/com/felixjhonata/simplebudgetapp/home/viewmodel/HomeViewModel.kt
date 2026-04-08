@@ -1,5 +1,7 @@
 package com.felixjhonata.simplebudgetapp.home.viewmodel
 
+import android.app.Application
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,19 +10,25 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
+import com.felixjhonata.simplebudgetapp.R
 import com.felixjhonata.simplebudgetapp.home.model.TransactionItemUiModel
+import com.felixjhonata.simplebudgetapp.home.model.uievent.HomeUiEvent
+import com.felixjhonata.simplebudgetapp.shared.data.room.entity.TotalBalance
+import com.felixjhonata.simplebudgetapp.shared.model.UiText
 import com.felixjhonata.simplebudgetapp.shared.model.TransactionType
 import com.felixjhonata.simplebudgetapp.shared.repository.TransactionRepository
-import com.felixjhonata.simplebudgetapp.shared.data.room.entity.TotalBalance
 import com.felixjhonata.simplebudgetapp.shared.util.convertEpochSecondToLocalDateTime
 import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.FileOutputStream
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -29,10 +37,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val application: Application,
     private val transactionRepository: TransactionRepository
 ): ViewModel() {
     private val _totalBalance = MutableStateFlow("0")
     val totalBalance = _totalBalance.asStateFlow()
+
+    private val _uiEvent = MutableSharedFlow<HomeUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
 
     val transactionItems by lazy {
         Pager(
@@ -51,7 +63,7 @@ class HomeViewModel @Inject constructor(
             }.insertSeparators { before, after ->
                 when {
                     (before == null && after != null)
-                            || (before != null && after != null && shouldSeparate(before, after)) -> {
+                        || (before != null && after != null && shouldSeparate(before, after)) -> {
                         TransactionItemUiModel.Date(after.epochTime)
                     }
 
@@ -106,4 +118,32 @@ class HomeViewModel @Inject constructor(
 
     fun formatDate(epochSecond: Long): String =
         epochSecond.convertEpochSecondToLocalDateTime().format(formatter)
+
+    fun saveJsonToUri(uri: Uri?) {
+        if (uri == null) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val jsonData = transactionRepository.dataToJsonString()
+
+            try {
+                application.contentResolver.openFileDescriptor(uri, "w")?.use { descriptor ->
+                    FileOutputStream(descriptor.fileDescriptor).use { outputStream ->
+                        outputStream.write(jsonData.toByteArray())
+                    }
+                }
+                _uiEvent.emit(
+                    HomeUiEvent.ShowSnackbar(
+                        UiText.StringResource(R.string.successful_export)
+                    )
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _uiEvent.emit(
+                    HomeUiEvent.ShowSnackbar(
+                        UiText.StringResource(R.string.failed_export)
+                    )
+                )
+            }
+        }
+    }
 }

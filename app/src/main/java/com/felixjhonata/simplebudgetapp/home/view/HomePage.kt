@@ -1,5 +1,9 @@
 package com.felixjhonata.simplebudgetapp.home.view
 
+import android.app.Activity
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,14 +22,20 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
@@ -44,6 +54,7 @@ import com.felixjhonata.simplebudgetapp.R
 import com.felixjhonata.simplebudgetapp.home.model.AddTransaction
 import com.felixjhonata.simplebudgetapp.home.model.TransactionDetail
 import com.felixjhonata.simplebudgetapp.home.model.TransactionItemUiModel
+import com.felixjhonata.simplebudgetapp.home.model.uievent.HomeUiEvent
 import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
 import com.felixjhonata.simplebudgetapp.home.viewmodel.HomeViewModel
 
@@ -53,11 +64,39 @@ fun HomePage(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val totalBalance by viewModel.totalBalance.collectAsState()
     val transactionItems = viewModel.transactionItems.collectAsLazyPagingItems()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                viewModel.saveJsonToUri(uri)
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { uiEvent ->
+            when (uiEvent) {
+                is HomeUiEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        uiEvent.message.asString(context),
+                        withDismissAction = true
+                    )
+                }
+            }
+        }
+    }
+
     Scaffold(
         modifier = modifier,
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -77,6 +116,14 @@ fun HomePage(
             item {
                 Spacer(Modifier.height(12.dp))
                 AppLogoAndName(
+                    onExport = {
+                        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "application/json"
+                            putExtra(Intent.EXTRA_TITLE, "simple_budget_app_backup.json")
+                        }
+                        launcher.launch(intent)
+                    },
                     Modifier.padding(horizontal = 24.dp)
                 )
             }
@@ -182,7 +229,10 @@ fun HomePage(
 }
 
 @Composable
-fun AppLogoAndName(modifier: Modifier = Modifier) {
+fun AppLogoAndName(
+    onExport: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -201,6 +251,15 @@ fun AppLogoAndName(modifier: Modifier = Modifier) {
                 fontSize = 18.sp
             )
         )
+
+        Spacer(Modifier.weight(1f))
+
+        IconButton(onClick = onExport) {
+            Icon(
+                painterResource(R.drawable.ic_upload),
+                "export_button"
+            )
+        }
     }
 }
 

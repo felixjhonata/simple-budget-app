@@ -11,4 +11,6 @@
     <string name="yes">Yes</string>
     <string name="edit_transaction">Edit Transaction</string>
     <string name="add_transaction">Add Transaction</string>
+    <string name="successful_export">Data exported successfully</string>
+    <string name="failed_export">Failed to export data</string>
 </resources>

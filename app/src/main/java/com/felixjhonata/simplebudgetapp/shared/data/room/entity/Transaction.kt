@@ -3,6 +3,7 @@ package com.felixjhonata.simplebudgetapp.shared.data.room.entity
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 @Entity(
     tableName = "transactions",
@@ -13,6 +14,8 @@ import androidx.room.PrimaryKey
         )
     ]
 )
+
+@Serializable
 data class Transaction(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
