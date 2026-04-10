@@ -8,7 +8,6 @@ import com.felixjhonata.simplebudgetapp.shared.data.room.entity.TotalBalance
 import com.felixjhonata.simplebudgetapp.shared.data.room.entity.Transaction
 import com.felixjhonata.simplebudgetapp.shared.model.DBBackup
 import kotlinx.coroutines.flow.first
-import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -93,7 +92,7 @@ class TransactionRepository @Inject constructor(
         }
     }
 
-    suspend fun dataToJsonString(): DBBackup {
+    suspend fun fetchDBBackupData(): DBBackup {
         val transactions = transactionDao.getTransactionList()
         return DBBackup(transactions)
     }
