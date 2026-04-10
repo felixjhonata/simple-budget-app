@@ -13,4 +13,6 @@
     <string name="add_transaction">Add Transaction</string>
     <string name="successful_export">Data exported successfully</string>
     <string name="failed_export">Failed to export data</string>
+    <string name="successful_import">Data imported successfully</string>
+    <string name="failed_import">Failed to import data</string>
 </resources>

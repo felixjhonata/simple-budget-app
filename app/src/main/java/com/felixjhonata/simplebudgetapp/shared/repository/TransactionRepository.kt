@@ -93,11 +93,8 @@ class TransactionRepository @Inject constructor(
         }
     }
 
-    suspend fun dataToJsonString(): String {
+    suspend fun dataToJsonString(): DBBackup {
         val transactions = transactionDao.getTransactionList()
-        val totalBalance = totalBalanceDao.getTotalBalance().first().totalBalance
-
-        val dbBackup = DBBackup(totalBalance, transactions)
-        return Json.encodeToString(dbBackup)
+        return DBBackup(transactions)
     }
 }

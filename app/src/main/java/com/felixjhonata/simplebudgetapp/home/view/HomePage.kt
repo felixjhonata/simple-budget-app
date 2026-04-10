@@ -1,7 +1,5 @@
 package com.felixjhonata.simplebudgetapp.home.view
 
-import android.app.Activity
-import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -55,8 +53,8 @@ import com.felixjhonata.simplebudgetapp.home.model.AddTransaction
 import com.felixjhonata.simplebudgetapp.home.model.TransactionDetail
 import com.felixjhonata.simplebudgetapp.home.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.home.model.uievent.HomeUiEvent
-import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
 import com.felixjhonata.simplebudgetapp.home.viewmodel.HomeViewModel
+import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
 
 @Composable
 fun HomePage(
@@ -69,13 +67,18 @@ fun HomePage(
     val transactionItems = viewModel.transactionItems.collectAsLazyPagingItems()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.data?.let { uri ->
-                viewModel.saveJsonToUri(uri)
-            }
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let {
+            viewModel.saveJsonToUri(it)
+        }
+    }
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            viewModel.readJsonFromUri(uri)
         }
     }
 
@@ -117,12 +120,10 @@ fun HomePage(
                 Spacer(Modifier.height(12.dp))
                 AppLogoAndName(
                     onExport = {
-                        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                            addCategory(Intent.CATEGORY_OPENABLE)
-                            type = "application/json"
-                            putExtra(Intent.EXTRA_TITLE, "simple_budget_app_backup.json")
-                        }
-                        launcher.launch(intent)
+                        exportLauncher.launch("simple_budget_app_backup.json")
+                    },
+                    onImport = {
+                        importLauncher.launch(arrayOf("application/json"))
                     },
                     Modifier.padding(horizontal = 24.dp)
                 )
@@ -231,6 +232,7 @@ fun HomePage(
 @Composable
 fun AppLogoAndName(
     onExport: () -> Unit,
+    onImport: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -253,6 +255,13 @@ fun AppLogoAndName(
         )
 
         Spacer(Modifier.weight(1f))
+
+        IconButton(onClick = onImport) {
+            Icon(
+                painterResource(R.drawable.ic_download),
+                "import_button"
+            )
+        }
 
         IconButton(onClick = onExport) {
             Icon(
