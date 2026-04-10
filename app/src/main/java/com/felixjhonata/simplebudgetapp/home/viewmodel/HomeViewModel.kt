@@ -123,7 +123,7 @@ class HomeViewModel @Inject constructor(
 
     fun saveJsonToUri(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            val jsonData = transactionRepository.dataToJsonString()
+            val jsonData = transactionRepository.fetchDBBackupData()
 
             try {
                 contentResolver.writeToUri(uri, jsonData)
