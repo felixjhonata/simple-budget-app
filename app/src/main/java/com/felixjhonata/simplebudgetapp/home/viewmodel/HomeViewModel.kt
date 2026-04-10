@@ -1,6 +1,6 @@
 package com.felixjhonata.simplebudgetapp.home.viewmodel
 
-import android.app.Application
+import android.content.ContentResolver
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -14,11 +14,14 @@ import com.felixjhonata.simplebudgetapp.R
 import com.felixjhonata.simplebudgetapp.home.model.TransactionItemUiModel
 import com.felixjhonata.simplebudgetapp.home.model.uievent.HomeUiEvent
 import com.felixjhonata.simplebudgetapp.shared.data.room.entity.TotalBalance
-import com.felixjhonata.simplebudgetapp.shared.model.UiText
+import com.felixjhonata.simplebudgetapp.shared.model.DBBackup
 import com.felixjhonata.simplebudgetapp.shared.model.TransactionType
+import com.felixjhonata.simplebudgetapp.shared.model.UiText
 import com.felixjhonata.simplebudgetapp.shared.repository.TransactionRepository
 import com.felixjhonata.simplebudgetapp.shared.util.convertEpochSecondToLocalDateTime
+import com.felixjhonata.simplebudgetapp.shared.util.readFromUri
 import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
+import com.felixjhonata.simplebudgetapp.shared.util.writeToUri
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,7 +31,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.FileOutputStream
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -37,7 +39,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val application: Application,
+    private val contentResolver: ContentResolver,
     private val transactionRepository: TransactionRepository
 ): ViewModel() {
     private val _totalBalance = MutableStateFlow("0")
@@ -119,18 +121,12 @@ class HomeViewModel @Inject constructor(
     fun formatDate(epochSecond: Long): String =
         epochSecond.convertEpochSecondToLocalDateTime().format(formatter)
 
-    fun saveJsonToUri(uri: Uri?) {
-        if (uri == null) return
-
+    fun saveJsonToUri(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             val jsonData = transactionRepository.dataToJsonString()
 
             try {
-                application.contentResolver.openFileDescriptor(uri, "w")?.use { descriptor ->
-                    FileOutputStream(descriptor.fileDescriptor).use { outputStream ->
-                        outputStream.write(jsonData.toByteArray())
-                    }
-                }
+                contentResolver.writeToUri(uri, jsonData)
                 _uiEvent.emit(
                     HomeUiEvent.ShowSnackbar(
                         UiText.StringResource(R.string.successful_export)
@@ -141,6 +137,29 @@ class HomeViewModel @Inject constructor(
                 _uiEvent.emit(
                     HomeUiEvent.ShowSnackbar(
                         UiText.StringResource(R.string.failed_export)
+                    )
+                )
+            }
+        }
+    }
+
+    fun readJsonFromUri(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val dbBackup = contentResolver.readFromUri<DBBackup>(uri)
+                dbBackup?.transactions?.forEach {
+                    transactionRepository.insertTransaction(it)
+                }
+                _uiEvent.emit(
+                    HomeUiEvent.ShowSnackbar(
+                        UiText.StringResource(R.string.successful_import)
+                    )
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _uiEvent.emit(
+                    HomeUiEvent.ShowSnackbar(
+                        UiText.StringResource(R.string.failed_import)
                     )
                 )
             }

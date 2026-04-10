@@ -5,6 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DBBackup(
-    val totalBalance: Double,
     val transactions: List<Transaction>
 )

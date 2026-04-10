@@ -1,4 +1,4 @@
-package com.felixjhonata.simplebudgetapp.shared.data.room.module
+package com.felixjhonata.simplebudgetapp.shared.module
 
 import android.content.ContentValues
 import android.content.Context
