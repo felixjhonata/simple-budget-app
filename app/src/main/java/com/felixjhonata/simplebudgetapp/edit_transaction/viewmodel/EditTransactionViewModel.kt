@@ -4,14 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felixjhonata.simplebudgetapp.edit_transaction.model.EditTransactionDialog
 import com.felixjhonata.simplebudgetapp.edit_transaction.model.uistate.EditTransactionUiState
-import com.felixjhonata.simplebudgetapp.shared.model.TransactionType
-import com.felixjhonata.simplebudgetapp.shared.repository.TransactionRepository
 import com.felixjhonata.simplebudgetapp.shared.data.room.entity.Transaction
+import com.felixjhonata.simplebudgetapp.shared.model.TransactionType
+import com.felixjhonata.simplebudgetapp.shared.module.IoDispatcher
+import com.felixjhonata.simplebudgetapp.shared.module.MainDispatcher
+import com.felixjhonata.simplebudgetapp.shared.repository.TransactionRepository
 import com.felixjhonata.simplebudgetapp.shared.util.convertEpochMillisToLocalDateTime
 import com.felixjhonata.simplebudgetapp.shared.util.convertEpochSecondToLocalDateTime
 import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,7 +26,9 @@ import kotlin.math.floor
 
 @HiltViewModel
 class EditTransactionViewModel @Inject constructor(
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(EditTransactionUiState())
     val uiState = _uiState.asStateFlow()
@@ -42,7 +46,7 @@ class EditTransactionViewModel @Inject constructor(
     private val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
 
     fun load(id: Int, setSelectedDate: (Long) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             oldTransaction = transactionRepository.getTransaction(id)
 
             oldTransaction?.let { transaction ->
@@ -59,26 +63,26 @@ class EditTransactionViewModel @Inject constructor(
                     )
                 }
 
-                withContext(Dispatchers.Main) { setSelectedDate(dateInMillis) }
+                withContext(mainDispatcher) { setSelectedDate(dateInMillis) }
             }
         }
     }
 
     fun updateTransaction(onComplete: () -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             with(uiState.value) {
-                oldTransaction?.let { oldTransactionDenull ->
-                    val newTransaction = oldTransactionDenull.copy(
+                oldTransaction?.let { oldTransaction ->
+                    val newTransaction = oldTransaction.copy(
                         type = type.toString(),
                         amount = inputtedNumber,
                         date = TimeUnit.MILLISECONDS.toSeconds(dateInMillis)
                     )
 
-                    transactionRepository.updateTransaction(oldTransactionDenull, newTransaction)
+                    transactionRepository.updateTransaction(oldTransaction, newTransaction)
                 }
             }
 
-            withContext(Dispatchers.Main) { onComplete.invoke() }
+            withContext(mainDispatcher) { onComplete.invoke() }
         }
     }
 
