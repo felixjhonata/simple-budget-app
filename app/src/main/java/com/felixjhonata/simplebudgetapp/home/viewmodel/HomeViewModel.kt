@@ -23,6 +23,7 @@ import com.felixjhonata.simplebudgetapp.shared.util.readFromUri
 import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
 import com.felixjhonata.simplebudgetapp.shared.util.writeToUri
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -92,6 +93,8 @@ class HomeViewModel @Inject constructor(
                         item.totalBalance.toLocalizedString()
                     }
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 e.printStackTrace()
                 transactionRepository.insertTotalBalance(TotalBalance(1, 0.0))
@@ -128,6 +131,8 @@ class HomeViewModel @Inject constructor(
                         UiText.StringResource(R.string.successful_export)
                     )
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 e.printStackTrace()
                 _uiEvent.emit(
@@ -153,6 +158,8 @@ class HomeViewModel @Inject constructor(
                         UiText.StringResource(R.string.successful_import)
                     )
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 e.printStackTrace()
                 _uiEvent.emit(

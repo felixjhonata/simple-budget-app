@@ -26,6 +26,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.After
@@ -73,12 +74,14 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun getTotalBalance_throwsExceptionAndFailedToInsert_onlyRetryOnce() {
+    fun getTotalBalance_throwsExceptionAndFailedToInsert_onlyRetryOnce() = runTest {
         every {
             transactionRepository.getTotalBalance()
         } throws NullPointerException()
 
         viewModel.getTotalBalance(false)
+
+        advanceUntilIdle()
 
         // 3 because 2 from setup + 1 from call
         coVerify(exactly = 3) { transactionRepository.getTotalBalance() }
