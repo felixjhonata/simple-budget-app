@@ -7,8 +7,10 @@ import com.felixjhonata.simplebudgetapp.shared.data.room.entity.Transaction
 import com.felixjhonata.simplebudgetapp.shared.util.convertEpochSecondToLocalDateTime
 import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
 import com.felixjhonata.simplebudgetapp.transaction_detail.model.uistate.TransactionDetailUiState
+import com.felixjhonata.simplebudgetapp.shared.module.IoDispatcher
+import com.felixjhonata.simplebudgetapp.shared.module.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -20,7 +22,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TransactionDetailViewModel @Inject constructor(
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ): ViewModel() {
     private val _uiState = MutableStateFlow(TransactionDetailUiState())
     val uiState = _uiState.asStateFlow()
@@ -35,7 +39,7 @@ class TransactionDetailViewModel @Inject constructor(
         epoch.convertEpochSecondToLocalDateTime().format(formatter)
 
     fun load(id: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             transaction = transactionRepository.getTransaction(id)
 
             transaction?.let {
@@ -49,11 +53,11 @@ class TransactionDetailViewModel @Inject constructor(
     }
 
     fun deleteTransaction(onComplete: () -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             transaction?.let {
                 transactionRepository.deleteTransaction(it)
             }
-            withContext(Dispatchers.Main) { onComplete.invoke() }
+            withContext(mainDispatcher) { onComplete.invoke() }
         }
     }
 
