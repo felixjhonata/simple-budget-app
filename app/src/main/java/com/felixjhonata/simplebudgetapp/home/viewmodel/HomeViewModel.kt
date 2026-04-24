@@ -2,7 +2,6 @@ package com.felixjhonata.simplebudgetapp.home.viewmodel
 
 import android.content.ContentResolver
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -17,13 +16,14 @@ import com.felixjhonata.simplebudgetapp.shared.data.room.entity.TotalBalance
 import com.felixjhonata.simplebudgetapp.shared.model.DBBackup
 import com.felixjhonata.simplebudgetapp.shared.model.TransactionType
 import com.felixjhonata.simplebudgetapp.shared.model.UiText
+import com.felixjhonata.simplebudgetapp.shared.module.IoDispatcher
 import com.felixjhonata.simplebudgetapp.shared.repository.TransactionRepository
 import com.felixjhonata.simplebudgetapp.shared.util.convertEpochSecondToLocalDateTime
 import com.felixjhonata.simplebudgetapp.shared.util.readFromUri
 import com.felixjhonata.simplebudgetapp.shared.util.toLocalizedString
 import com.felixjhonata.simplebudgetapp.shared.util.writeToUri
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -40,7 +40,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val contentResolver: ContentResolver,
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ): ViewModel() {
     private val _totalBalance = MutableStateFlow("0")
     val totalBalance = _totalBalance.asStateFlow()
@@ -84,7 +85,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getTotalBalance(shouldRetry: Boolean = true) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 transactionRepository.getTotalBalance().collect { item ->
                     _totalBalance.update {
@@ -92,24 +93,19 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                Log.e("ERROR", e.localizedMessage ?: "")
+                e.printStackTrace()
                 transactionRepository.insertTotalBalance(TotalBalance(1, 0.0))
                 if (shouldRetry) getTotalBalance(false)
             }
         }
     }
 
-    fun shouldSeparate(before: TransactionItemUiModel, after: TransactionItemUiModel): Boolean {
-        val beforeTypeCasted = before as? TransactionItemUiModel.TransactionItem
-        val afterTypeCasted = after as? TransactionItemUiModel.TransactionItem
-
-        if (beforeTypeCasted == null || afterTypeCasted == null) return false
-
-        val beforeDate = Instant.ofEpochSecond(beforeTypeCasted.epochTime)
+    private fun shouldSeparate(before: TransactionItemUiModel.TransactionItem, after: TransactionItemUiModel.TransactionItem): Boolean {
+        val beforeDate = Instant.ofEpochSecond(before.epochTime)
             .atZone(ZoneId.systemDefault())
             .toLocalDate()
 
-        val afterDate = Instant.ofEpochSecond(afterTypeCasted.epochTime)
+        val afterDate = Instant.ofEpochSecond(after.epochTime)
             .atZone(ZoneId.systemDefault())
             .toLocalDate()
 
@@ -122,7 +118,7 @@ class HomeViewModel @Inject constructor(
         epochSecond.convertEpochSecondToLocalDateTime().format(formatter)
 
     fun saveJsonToUri(uri: Uri) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val jsonData = transactionRepository.fetchDBBackupData()
 
             try {
@@ -144,11 +140,13 @@ class HomeViewModel @Inject constructor(
     }
 
     fun readJsonFromUri(uri: Uri) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 val dbBackup = contentResolver.readFromUri<DBBackup>(uri)
-                dbBackup?.transactions?.forEach {
-                    transactionRepository.insertTransaction(it)
+                dbBackup?.run {
+                    transactions.forEach {
+                        transactionRepository.insertTransaction(it)
+                    }
                 }
                 _uiEvent.emit(
                     HomeUiEvent.ShowSnackbar(

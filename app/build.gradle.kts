@@ -111,6 +111,9 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
 
+    // Paging Testing
+    testImplementation(libs.androidx.paging.testing)
+
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)
